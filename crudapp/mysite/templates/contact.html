@@ -1,34 +1,168 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Contact</title>
+    <title>Contact Pagina</title>
     <style>
-    header {
-        background-color: #333;
-        padding: 1rem;
-        text-align: center;
-    }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            color: #333;
+        }
 
-    nav a {
-        color: white;
-        text-decoration: none;
-        padding: 0 15px;
-        font-family: Arial, sans-serif;
-    }
+        header {
+            background-color: #333;
+            padding: 1rem;
+            text-align: center;
+        }
 
-    nav a:hover {
-        text-decoration: underline;
-    }
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0 15px;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        main {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form label {
+            display: block;
+            margin-top: 1rem;
+            font-weight: bold;
+        }
+
+        form input,
+        form textarea {
+            width: 100%;
+            padding: 0.8rem;
+            margin-top: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        form button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            background-color: {{ kleur }};
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        form button:hover {
+            opacity: 0.8;
+        }
+
+        .error-message {
+            color: #d9534f;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
     </style>
 </head>
 <body>
+
     <header>
         <nav>
             <a href="/">Home</a>
-            <a href="/about/">Over Ons</a>
-            <a href="/contact/">Contact</a>
+            <a href="/about">Over Ons</a>
+            <a href="/contact">Contact</a>
+            <a href="/students">Studenten</a>
         </nav>
     </header>
-    <h1>Contact Page</h1>
+
+    <main>
+        <h1>Neem Contact Op</h1>
+        <p>De kleur van de knop is: <strong>{{ kleur }}</strong></p>
+        <form id="contactForm">
+            <label for="name">Naam:</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="email">E-mailadres:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="message">Bericht:</label>
+            <textarea id="message" name="message" rows="5" required></textarea>
+
+            <button type="submit">Verstuur</button>
+        </form>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('contactForm');
+            const nameInput = document.getElementById('name');
+            const emailInput = document.getElementById('email');
+            const messageInput = document.getElementById('message');
+
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                clearErrors();
+                let isValid = true;
+
+                if (nameInput.value.trim() === '') {
+                    showError(nameInput, 'Naam is verplicht.');
+                    isValid = false;
+                }
+
+                if (emailInput.value.trim() === '') {
+                    showError(emailInput, 'E-mailadres is verplicht.');
+                    isValid = false;
+                } else if (!validateEmail(emailInput.value.trim())) {
+                    showError(emailInput, 'Voer een geldig e-mailadres in.');
+                    isValid = false;
+                }
+
+                if (messageInput.value.trim() === '') {
+                    showError(messageInput, 'Bericht is verplicht.');
+                    isValid = false;
+                }
+
+                if (isValid) {
+                    alert('Formulier succesvol verstuurd!');
+                }
+            });
+
+            function showError(inputElement, message) {
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'error-message';
+                errorMessage.textContent = message;
+                inputElement.parentNode.insertBefore(errorMessage, inputElement.nextSibling);
+            }
+
+            function clearErrors() {
+                const errorMessages = document.querySelectorAll('.error-message');
+                errorMessages.forEach(msg => msg.remove());
+            }
+
+            function validateEmail(email) {
+                const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+                return re.test(String(email).toLowerCase());
+            }
+        });
+    </script>
 </body>
 </html>
