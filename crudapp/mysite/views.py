@@ -1,4 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Student
+from .forms import StudentForm
+from django.db.models import Avg
+
 
 def home(request):
     """
@@ -69,3 +73,54 @@ def students(request):
         'avg_grade': avg_grade
     }
     return render(request, 'students.html', context)
+
+
+
+
+def student_list(request):
+    """Haalt alle studenten op, sorteert ze en berekent het gemiddelde cijfer."""
+    students = Student.objects.order_by('name')
+    avg_grade = students.aggregate(Avg('grade'))['grade__avg']
+
+    context = {
+        'students': students,
+        'avg_grade': avg_grade
+    }
+    return render(request, 'students/student_list.html', context)
+
+
+def add_student(request):
+    """Voegt een nieuwe student toe via een formulier."""
+    if request.method == 'POST':
+        form = StudentForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('student_list')
+    else:
+        form = StudentForm()
+
+    return render(request, 'students/student_form.html', {'form': form})
+
+
+def update_student(request, pk):
+    """Werkt de gegevens van een bestaande student bij."""
+    student = get_object_or_404(Student, pk=pk)
+    if request.method == 'POST':
+        form = StudentForm(request.POST, instance=student)
+        if form.is_valid():
+            form.save()
+            return redirect('student_list')
+    else:
+        form = StudentForm(instance=student)
+
+    return render(request, 'students/student_form.html', {'form': form})
+
+
+def delete_student(request, pk):
+    """Verwijdert een student na bevestiging."""
+    student = get_object_or_404(Student, pk=pk)
+    if request.method == 'POST':
+        student.delete()
+        return redirect('student_list')
+
+    return render(request, 'students/student_confirm_delete.html', {'student': student})
